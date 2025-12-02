@@ -6,6 +6,8 @@ import '../ui/theme.dart';
 
 // --- Data Model ---
 // 1. Create a data model for a Score.
+// lib/screens/scores_screen.dart
+
 class Score {
   final String quizTitle;
   final int score;
@@ -17,14 +19,17 @@ class Score {
     required this.dateTaken,
   });
 
-  // Factory constructor to parse the Map from the API
   factory Score.fromJson(Map<String, dynamic> json) {
     return Score(
-      quizTitle: json['quiz_title'] ?? 'Unknown Quiz',
-      score: json['score'] ?? 0,
-      dateTaken: DateTime.parse(
-        json['created_at'] ?? DateTime.now().toIso8601String(),
-      ),
+      // 1. Matches the 'quiz_title' from your backend query
+      quizTitle: json['quiz_title']?.toString() ?? 'Unknown Quiz',
+
+      // 2. SAFETY FIX: Handles "score" being a String ("100") or Int (100)
+      score: int.tryParse(json['score'].toString()) ?? 0,
+
+      // 3. LOGIC FIX: Uses 'completed_at' (from backend) instead of 'created_at'
+      dateTaken: DateTime.tryParse(json['completed_at']?.toString() ?? '') 
+          ?? DateTime.now(),
     );
   }
 }
